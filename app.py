@@ -17,7 +17,7 @@ key_dict = json.loads(st.secrets["google_key"])
 creds = ServiceAccountCredentials.from_json_keyfile_dict(key_dict, scope)
 client = gspread.authorize(creds)
 
-doc = client.open_by_url("https://docs.google.com/spreadsheets/d/13OWFBm3CA37LHKt3eMPLUWZfnUrrYUEAmH1GsNANVeo/edit?gid=0#gid=0")
+doc = client.open_by_url("https://docs.google.com/spreadsheets/d/13OWFBm3CA37LHKt3eMPLUWZfnUrrYUEAmH1GsNANVeo/")
 record_sheet = doc.worksheet("출납기록")
 card_sheet = doc.worksheet("카드목록")
 user_sheet = doc.worksheet("사용자목록")
