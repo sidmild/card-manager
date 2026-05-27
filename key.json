@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "card-manager-497604",
+  "private_key_id": "a4b7cf0235bf56d758a396574a057d09171496a8",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCrrznWlI7C3x//\ntvzKiVvg52IljC804ayCk/PzAHWIdsf/yM5TT1yglxAbgqOERSFtg1yh5tdqRj1w\nBtNMZTqDziO6OLL/V5OwgnLhslpT1Uet9wADprgNgf+AqLNs78Rk1xkNripSW+sP\nDlpdgBc4fGunmH0ve+xcFcjRpkJrsB/gOksRL0BJTsMIlVRX5SLyJe2efWFL2iuP\nqN4uLbm/iMZA7HiLHHk6YNEVPnm7pm/rBfQhJAExE72S7/YiHhXG4ADMsXFCyM77\neqGxZvHq2JbQX26OCWVDKeU7MRTtDjOo6Sf4VnCw/s5lD+AEOrjY5wH5dqGmgorE\npej/PRVBAgMBAAECggEAF8uwJQ0vIlRhr4Qx0nKqYOhBIrok2twCmJCgKcihAbqQ\n6uNusX5Y9MsrSNzZBB6+zNp9rtT7e3fj0RCpHbgUHaunKQrtyFVfm4HhIWYifecc\nScDn6Bml/f1MKA153Pn4iw+DIfHHXOXvlQUkwjvcPBCGrVKF21x+PJ8qV+CG6Tzk\neKsM5Qe0bQbFCFechzjQRInTrw6zEK12J5xVmwpANaG8rLJ4ZjezFLAHuhQRRVUW\niCG4pELiemIVwUHygyRWuj7U6Me4mVLIGXbKg2AIHc3bpoIyfAfEylToyg5i4Khx\nIjgUWgkrlFKSivzFeVa04JCTfhfjyX0krje4u3R1xwKBgQDR8IwA160hGCqNOeNd\nwasj9I6EjXE87E/Jn7l4/0hCaivoFlDTr6daZVQQAbnbIr/1TLvq0uHmblbNzBH7\nb+248SktmleZYc7p667oWKSuqY4jVL4oXiaJLLQJiYrX3pkaGMob6AgggGaHs7le\nhilSsU69bkKItgmoMUWkN/qBYwKBgQDRWgrwjun6Mf7aHGfYffrEkkvU3qU+G5Oa\nZlif1eJt8A+C08lImFKoiZKck4RMtuex1i7Ynr9/dwlr21YaATt00O97hC0w1kxV\nBpVC1Sg+NwTTjF/9D1d//z7/Io86ng4DLmBxlu9yNPV7I7lGLaSM4m9jATkW1Dwe\nKI0fjspCCwKBgCwEgIZIsk8nDvzvb0GgMq7mPt+B/IUmkxAWQkAhXlg2hKAz1Zyc\nzr0AU+DLS9mrbo4TGa+BqcWzytV5fSe37yMAxX5/RvCs9kJLnS+wLk9E072Krhgu\nrWvDiLgbM5ZRYM589htlyhZudZDsWOh9vrpM3NKRBLg/WsT+F7j317k7AoGAKMK3\nTo8Ez0ncrOrK7UPaB1vUl+Whlq4X1wAGUVh7dZw/6OEDV7cQoO/oM8QlBiq2gdGJ\n3XNLJa4vj2htIzMKOHxVpF7fzZpr0kIt3Y1TAIoFzoqORd8u0iUIRvSbnnYXlFb7\nQCJ7DGlzQj56XEeWujd8KHKcgu1fpx+OGo7aonECgYBNkTtapeS1vKi0w8l7iBjp\nkbc7giHD7Szfr9sKTxyrXVuF8HsDq8fkL9tI+Sil7p21IDCxc9TngYSLUlYLcGt3\numEoTWxdpfMweufxGDmA5ih7JG4dugZs7twNT0I0XLr6Mr4W7kZyDXkqWAom35Qj\n4iQHwKTSOqte9mVkzShYXg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "card-bot@card-manager-497604.iam.gserviceaccount.com",
+  "client_id": "111741337003717739654",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/card-bot%40card-manager-497604.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
