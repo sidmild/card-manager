@@ -3,15 +3,19 @@ import datetime
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import json  # 금고를 열기 위한 도구 추가!
 
-# --- [1] 구글 시트 연결 설정 ---
+# --- [1] 구글 시트 연결 설정 (금고 방식 적용) ---
 scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive"
 ]
-creds = ServiceAccountCredentials.from_json_keyfile_name("key.json", scope)
+
+# key.json 파일 대신, 스트림릿 금고(Secrets)에서 열쇠를 가져옵니다.
+key_dict = json.loads(st.secrets["google_key"])
+creds = ServiceAccountCredentials.from_json_keyfile_dict(key_dict, scope)
 client = gspread.authorize(creds)
 
 spreadsheet_name = "카드출납대장(현천고)"
@@ -20,7 +24,7 @@ doc = client.open(spreadsheet_name)
 record_sheet = doc.worksheet("출납기록")
 card_sheet = doc.worksheet("카드목록")
 
-# --- [2] 데이터 불러오기 및 필터링 ---
+# ---- [2] 데이터 불러오기 및 필터링 ----
 # 1. 카드 목록 가져오기
 card_list_data = card_sheet.col_values(2)[1:] 
 card_list = [card for card in card_list_data if card]
