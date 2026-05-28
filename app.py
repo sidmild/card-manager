@@ -5,11 +5,13 @@ import pandas as pd
 # json 임포트도 이제 필요 없습니다!
 
 # ==========================================
-# 🚀 1. 연결 정보 세팅 (가장 완벽하고 에러 없는 TOML 방식)
+# 1. 연결 정보 세팅
 # ==========================================
 def init_connection():
-    # 🚨 파이썬이 새 이름표(google_credentials)를 찾도록 수정되었습니다!
     key_dict = dict(st.secrets["google_credentials"])
+    
+    # 누락되었던 줄바꿈 기호 변환 코드 추가
+    key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
     
     client = gspread.service_account_from_dict(key_dict)
     
