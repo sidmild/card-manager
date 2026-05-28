@@ -82,8 +82,23 @@ st.markdown("""
         gap: 15px;
     }
     
-    /* --- 메인 화면 큰 버튼 스타일 (배경 흰색) --- */
+    /* 💡 1. 기본 primary 버튼 (수령 완료 / 반납 완료)을 초록색으로 설정 */
     button[kind="primary"] {
+        background-color: #03c75a !important; /* 산뜻한 초록색 */
+        color: white !important;
+        border: none !important;
+        font-size: 20px !important;
+        font-weight: bold !important;
+        border-radius: 10px !important;
+        transition: all 0.2s ease-in-out;
+    }
+    button[kind="primary"]:hover {
+        background-color: #00b04e !important; /* 터치 시 살짝 진해짐 */
+        color: white !important;
+    }
+    
+    /* 💡 2. 메인 화면의 큰 버튼(컬럼 안에 있는 primary 버튼)은 하얀색 거대 버튼으로 예외 처리 */
+    div[data-testid="column"] button[kind="primary"] {
         background-color: #ffffff !important; 
         color: #31333F !important; 
         border: 2px solid #e0e0e0 !important; 
@@ -92,12 +107,11 @@ st.markdown("""
         font-weight: 900 !important;
         border-radius: 15px !important;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-        transition: all 0.2s ease-in-out;
     }
-    
-    button[kind="primary"]:hover {
+    div[data-testid="column"] button[kind="primary"]:hover {
         border-color: #ff4b4b !important;
         color: #ff4b4b !important;
+        background-color: #ffffff !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -132,7 +146,6 @@ elif st.session_state.page == 'checkout':
     st.markdown("<h2 style='font-size: 32px;'>🟩 카드 수령 등록</h2>", unsafe_allow_html=True)
     st.markdown("<h3 style='font-size: 24px;'>📝 수령 정보 입력</h3>", unsafe_allow_html=True)
     
-    # 사용자 이름은 검색이 필요하므로 그대로 둡니다.
     user_name = st.selectbox(
         "사용자 이름 (검색하여 선택)", 
         options=user_list, 
@@ -143,11 +156,11 @@ elif st.session_state.page == 'checkout':
     if not available_cards:
         st.error("현재 남은 카드가 없습니다!")
     else:
-        # 💡 st.selectbox 에서 st.radio 로 변경! 키보드가 절대 올라오지 않습니다.
         card_selection = st.radio("수령할 카드", available_cards)
         checkout_note = st.text_input("수령 메모 (선택)", placeholder="특이사항을 적어주세요")
         
-        if st.button("수령 완료", type="secondary", use_container_width=True):
+        # 💡 secondary였던 타입을 primary로 변경하여 초록색이 적용되게 함
+        if st.button("수령 완료", type="primary", use_container_width=True):
             if not user_name: 
                 st.warning("⚠️ 사용자 이름을 검색하여 선택해 주세요.")
             else:
@@ -180,13 +193,13 @@ elif st.session_state.page == 'return':
     else:
         options_display = [item["display"] for item in checked_out_list]
         
-        # 💡 여기도 st.radio 로 변경하여 터치 한 번으로 반납할 카드를 고를 수 있게 했습니다.
         selected_display = st.radio("반납할 카드를 고르세요", options_display)
         selected_item = next(item for item in checked_out_list if item["display"] == selected_display)
         
         return_note = st.text_input("반납 메모 (선택)", placeholder="특이사항을 적어주세요")
         
-        if st.button("반납 완료", type="secondary", use_container_width=True):
+        # 💡 secondary였던 타입을 primary로 변경하여 초록색이 적용되게 함
+        if st.button("반납 완료", type="primary", use_container_width=True):
             current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
             row_num = selected_item["row_num"]
             
