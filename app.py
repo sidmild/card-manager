@@ -61,22 +61,36 @@ st.set_page_config(page_title="카드 출납 관리", layout="centered")
 
 # --- 메인 화면 ---
 if st.session_state.page == 'main':
+    # 💡 [디자인 업그레이드] 메인 화면의 주요 버튼을 엄청나게 크게 만듭니다!
+    st.markdown("""
+        <style>
+        button[kind="primary"] {
+            height: 120px !important;
+            font-size: 28px !important;
+            font-weight: 900 !important;
+            border-radius: 20px !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+            margin-bottom: 10px !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     st.title("💳 신용카드 사용대장")
     st.write("원하시는 작업을 선택해 주세요.")
     st.write("")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🟩 카드 수령하기", use_container_width=True):
-            change_page('checkout')
-            st.rerun()
-    with col2:
-        if st.button("🟥 카드 반납하기", use_container_width=True):
-            change_page('return')
-            st.rerun()
+    # 💡 좌우 분할을 없애고 위아래 100% 꽉 차는 거대한 버튼으로 변경
+    if st.button("🟩 카드 수령하기", use_container_width=True, type="primary"):
+        change_page('checkout')
+        st.rerun()
+        
+    if st.button("🟥 카드 반납하기", use_container_width=True, type="primary"):
+        change_page('return')
+        st.rerun()
             
     st.divider()
-    if st.button("⚙️ 관리자 메뉴", use_container_width=False):
+    # 관리자 메뉴는 눈에 덜 띄도록 일반(secondary) 버튼 크기로 유지합니다.
+    if st.button("⚙️ 관리자 메뉴", use_container_width=True):
         change_page('admin')
         st.rerun()
 
@@ -87,15 +101,12 @@ elif st.session_state.page == 'checkout':
         st.rerun()
         
     st.header("🟩 카드 수령 등록")
-    
-    # 💡 1. 수령 정보 입력을 화면 상단으로 배치
     st.subheader("📝 수령 정보 입력")
     
-    # 💡 2. 이름 검색 기능 강화 (기본값을 빈칸으로 만들고 검색 유도)
     user_name = st.selectbox(
         "사용자 이름 (검색하여 선택)", 
         options=user_list, 
-        index=None,  # 아무도 선택되지 않은 빈칸 상태로 시작
+        index=None, 
         placeholder="🔍 이름을 입력하면 자동으로 검색됩니다"
     )
     
@@ -106,7 +117,7 @@ elif st.session_state.page == 'checkout':
         checkout_note = st.text_input("수령 메모 (선택)", placeholder="특이사항을 적어주세요")
         
         if st.button("수령 완료", type="primary"):
-            if not user_name: # 사용자를 선택하지 않고 누를 경우 방지
+            if not user_name: 
                 st.warning("⚠️ 사용자 이름을 검색하여 선택해 주세요.")
             else:
                 current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
@@ -119,8 +130,6 @@ elif st.session_state.page == 'checkout':
                 st.rerun()
 
     st.divider()
-
-    # 💡 3. 현재 카드 사용 현황을 화면 하단으로 이동
     st.subheader("📌 현재 카드 사용 현황")
     if not checked_out_list:
         st.info("모든 카드가 반납되어 사무실에 있습니다.")
@@ -169,7 +178,7 @@ elif st.session_state.page == 'admin':
     st.header("⚙️ 관리자 전용")
     password = st.text_input("비밀번호", type="password")
     
-    if password == "1234":
+    if password == "지출줌1!":
         st.success("인증 성공")
         st.write("전체 출납 내역 조회")
         
