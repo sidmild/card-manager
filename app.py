@@ -1,29 +1,27 @@
 import streamlit as st
 import datetime
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import json
 
 # ==========================================
-# 🚀 1. 연결 정보 캐싱 (가장 빠르고 확실한 아이디 연결 방식)
+# 🚀 1. 연결 정보 세팅 (줄바꿈 에러 원천 차단)
 # ==========================================
-
 def init_connection():
-    scope = [
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive.file",
-        "https://www.googleapis.com/auth/drive"
-    ]
     key_dict = json.loads(st.secrets["google_key"])
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(key_dict, scope)
-    client = gspread.authorize(creds)
     
+    # 🚨 [마법의 1줄] 스트림릿이 텍스트로 착각한 줄바꿈(\n) 기호를 진짜 엔터키로 복구!
+    key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
+    
+    # 구식 oauth2client 대신 최신 gspread 내장 인증 방식으로 깔끔하게 로그인합니다.
+    client = gspread.service_account_from_dict(key_dict)
+    
+    # 선생님의 현천고 구글 시트 아이디
     sheet_id = "13OWFBm3CA37LHKt3eMPLUWZfnUrrYUEAmH1GsNANVeo"
     return client.open_by_key(sheet_id)
 
 doc = init_connection()
+
 record_sheet = doc.worksheet("출납기록")
 card_sheet = doc.worksheet("카드목록")
 user_sheet = doc.worksheet("사용자목록")
@@ -32,7 +30,7 @@ purpose_sheet = doc.worksheet("품의내용목록")
 # ==========================================
 # 🚀 2. 데이터 임시 저장 (속도 향상 핵심 기술)
 # ==========================================
-@st.cache_data(ttl=30) # 30초 동안 구글에 안 묻고 기억한 것을 0.1초만에 보여줌
+@st.cache_data(ttl=30)
 def load_data():
     c_list = [c for c in card_sheet.col_values(2)[1:] if c]
     u_list = [u for u in user_sheet.col_values(1)[1:] if u]
@@ -48,7 +46,6 @@ def load_data():
     r_records = record_sheet.get_all_values()
     return c_list, u_list, p_list, r_records
 
-# 함수를 실행해서 기억된 데이터를 불러옵니다.
 card_list, user_list, purpose_list, all_records = load_data()
 
 # --- 데이터 필터링 ---
@@ -135,9 +132,7 @@ elif st.session_state.page == 'checkout':
                 new_row = [current_time, "", user_name, card_selection, purpose_content, "수령", "0"]
                 record_sheet.append_row(new_row)
                 
-                # 🚀 장부를 수정했으니 기존 기억을 지우고 새로고침!
                 st.cache_data.clear() 
-                
                 st.success(f"✅ 수령 등록 완료! 메인 화면으로 돌아갑니다.")
                 change_page('main')
                 st.rerun()
@@ -173,9 +168,7 @@ elif st.session_state.page == 'return':
                 existing_purpose = selected_item["row_data"][4]
                 record_sheet.update_cell(row_num, 5, f"{existing_purpose} [{return_note}]")
                 
-            # 🚀 반납 처리 후 캐시 초기화!
             st.cache_data.clear()
-            
             st.success("✅ 반납 완료! 메인 화면으로 돌아갑니다.")
             change_page('main')
             st.rerun()
