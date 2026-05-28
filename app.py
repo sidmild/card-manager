@@ -8,7 +8,7 @@ import json
 # ==========================================
 # 🚀 1. 연결 정보 캐싱 (가장 빠르고 확실한 아이디 연결 방식)
 # ==========================================
-@st.cache_resource(ttl=3600)
+
 def init_connection():
     scope = [
         "https://spreadsheets.google.com/feeds",
@@ -20,7 +20,6 @@ def init_connection():
     creds = ServiceAccountCredentials.from_json_keyfile_dict(key_dict, scope)
     client = gspread.authorize(creds)
     
-    # URL 대신 '고유 아이디'만 딱 집어넣어 에러를 원천 차단합니다!
     sheet_id = "13OWFBm3CA37LHKt3eMPLUWZfnUrrYUEAmH1GsNANVeo"
     return client.open_by_key(sheet_id)
 
