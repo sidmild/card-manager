@@ -2,21 +2,17 @@ import streamlit as st
 import datetime
 import gspread
 import pandas as pd
-import json
+# json 임포트도 이제 필요 없습니다!
 
 # ==========================================
-# 🚀 1. 연결 정보 세팅 (줄바꿈 에러 원천 차단)
+# 🚀 1. 연결 정보 세팅 (가장 완벽하고 에러 없는 TOML 방식)
 # ==========================================
 def init_connection():
-    key_dict = json.loads(st.secrets["google_key"])
+    # 🚨 파이썬이 새 이름표(google_credentials)를 찾도록 수정되었습니다!
+    key_dict = dict(st.secrets["google_credentials"])
     
-    # 🚨 [마법의 1줄] 스트림릿이 텍스트로 착각한 줄바꿈(\n) 기호를 진짜 엔터키로 복구!
-    key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
-    
-    # 구식 oauth2client 대신 최신 gspread 내장 인증 방식으로 깔끔하게 로그인합니다.
     client = gspread.service_account_from_dict(key_dict)
     
-    # 선생님의 현천고 구글 시트 아이디
     sheet_id = "13OWFBm3CA37LHKt3eMPLUWZfnUrrYUEAmH1GsNANVeo"
     return client.open_by_key(sheet_id)
 
@@ -46,6 +42,7 @@ def load_data():
     r_records = record_sheet.get_all_values()
     return c_list, u_list, p_list, r_records
 
+# (이하 화면 구성 코드는 선생님이 가지고 계신 코드 그대로 두시면 됩니다!)
 card_list, user_list, purpose_list, all_records = load_data()
 
 # --- 데이터 필터링 ---
