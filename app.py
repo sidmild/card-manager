@@ -59,15 +59,17 @@ def change_page(page_name):
 # ==========================================
 st.set_page_config(page_title="카드 출납 관리", layout="centered")
 
-# 💡 디자인 적용: 전체 글씨 크기 확대 및 메인 버튼(흰색 배경) 스타일링
 st.markdown("""
     <style>
-    /* 일반 텍스트, 설명글 크기 키우기 */
+    .stApp {
+        background-color: #ffffff !important;
+        color: #31333F !important;
+    }
+    
     .stApp p, .stApp span, .stApp label {
         font-size: 20px !important;
     }
     
-    /* 입력창 내부 글씨 크기 키우기 */
     .stSelectbox div[data-baseweb="select"] {
         font-size: 18px !important;
     }
@@ -75,11 +77,16 @@ st.markdown("""
         font-size: 18px !important;
     }
     
+    /* --- 라디오 버튼(카드 선택) 간격 좀 더 넓게 --- */
+    .stRadio div[role="radiogroup"] {
+        gap: 15px;
+    }
+    
     /* --- 메인 화면 큰 버튼 스타일 (배경 흰색) --- */
     button[kind="primary"] {
-        background-color: #ffffff !important; /* 버튼 배경을 깔끔한 흰색으로 */
-        color: #31333F !important; /* 글씨는 잘 보이게 진한 회색/검정 */
-        border: 2px solid #e0e0e0 !important; /* 연한 테두리로 버튼 구분 */
+        background-color: #ffffff !important; 
+        color: #31333F !important; 
+        border: 2px solid #e0e0e0 !important; 
         height: 140px !important;
         font-size: 32px !important;
         font-weight: 900 !important;
@@ -88,7 +95,6 @@ st.markdown("""
         transition: all 0.2s ease-in-out;
     }
     
-    /* 버튼을 누르거나 터치할 때 살짝 색이 변하는 효과 */
     button[kind="primary"]:hover {
         border-color: #ff4b4b !important;
         color: #ff4b4b !important;
@@ -102,7 +108,6 @@ if st.session_state.page == 'main':
     st.write("원하시는 작업을 선택해 주세요.")
     st.write("")
     
-    # 좌우 배치를 위해 2개의 열 생성
     col1, col2 = st.columns(2)
     with col1:
         if st.button("🟩 카드 수령하기", use_container_width=True, type="primary"):
@@ -127,6 +132,7 @@ elif st.session_state.page == 'checkout':
     st.markdown("<h2 style='font-size: 32px;'>🟩 카드 수령 등록</h2>", unsafe_allow_html=True)
     st.markdown("<h3 style='font-size: 24px;'>📝 수령 정보 입력</h3>", unsafe_allow_html=True)
     
+    # 사용자 이름은 검색이 필요하므로 그대로 둡니다.
     user_name = st.selectbox(
         "사용자 이름 (검색하여 선택)", 
         options=user_list, 
@@ -137,10 +143,10 @@ elif st.session_state.page == 'checkout':
     if not available_cards:
         st.error("현재 남은 카드가 없습니다!")
     else:
-        card_selection = st.selectbox("수령할 카드", available_cards)
+        # 💡 st.selectbox 에서 st.radio 로 변경! 키보드가 절대 올라오지 않습니다.
+        card_selection = st.radio("수령할 카드", available_cards)
         checkout_note = st.text_input("수령 메모 (선택)", placeholder="특이사항을 적어주세요")
         
-        # 💡 안쪽 화면의 완료 버튼은 너무 커지지 않도록 일반(secondary) 버튼으로 유지
         if st.button("수령 완료", type="secondary", use_container_width=True):
             if not user_name: 
                 st.warning("⚠️ 사용자 이름을 검색하여 선택해 주세요.")
@@ -173,7 +179,9 @@ elif st.session_state.page == 'return':
         st.info("현재 반납할 카드가 없습니다.")
     else:
         options_display = [item["display"] for item in checked_out_list]
-        selected_display = st.selectbox("반납할 카드를 고르세요", options_display)
+        
+        # 💡 여기도 st.radio 로 변경하여 터치 한 번으로 반납할 카드를 고를 수 있게 했습니다.
+        selected_display = st.radio("반납할 카드를 고르세요", options_display)
         selected_item = next(item for item in checked_out_list if item["display"] == selected_display)
         
         return_note = st.text_input("반납 메모 (선택)", placeholder="특이사항을 적어주세요")
