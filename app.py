@@ -4,7 +4,7 @@ import gspread
 import pandas as pd
 
 # ==========================================
-# 🚀 1. 연결 정보 세팅
+# 1. 연결 정보 세팅
 # ==========================================
 def init_connection():
     key_dict = dict(st.secrets["google_credentials"])
@@ -20,7 +20,7 @@ card_sheet = doc.worksheet("카드목록")
 user_sheet = doc.worksheet("사용자목록")
 
 # ==========================================
-# 🚀 2. 데이터 임시 저장
+# 2. 데이터 임시 저장
 # ==========================================
 @st.cache_data(ttl=30)
 def load_data():
@@ -55,41 +55,65 @@ def change_page(page_name):
     st.session_state.page = page_name
 
 # ==========================================
-# 3. 화면 구성
+# 3. 화면 구성 및 디자인 (CSS)
 # ==========================================
 st.set_page_config(page_title="카드 출납 관리", layout="centered")
 
+# 💡 디자인 적용: 전체 글씨 크기 확대 및 메인 버튼(흰색 배경) 스타일링
+st.markdown("""
+    <style>
+    /* 일반 텍스트, 설명글 크기 키우기 */
+    .stApp p, .stApp span, .stApp label {
+        font-size: 20px !important;
+    }
+    
+    /* 입력창 내부 글씨 크기 키우기 */
+    .stSelectbox div[data-baseweb="select"] {
+        font-size: 18px !important;
+    }
+    .stTextInput input {
+        font-size: 18px !important;
+    }
+    
+    /* --- 메인 화면 큰 버튼 스타일 (배경 흰색) --- */
+    button[kind="primary"] {
+        background-color: #ffffff !important; /* 버튼 배경을 깔끔한 흰색으로 */
+        color: #31333F !important; /* 글씨는 잘 보이게 진한 회색/검정 */
+        border: 2px solid #e0e0e0 !important; /* 연한 테두리로 버튼 구분 */
+        height: 140px !important;
+        font-size: 32px !important;
+        font-weight: 900 !important;
+        border-radius: 15px !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    /* 버튼을 누르거나 터치할 때 살짝 색이 변하는 효과 */
+    button[kind="primary"]:hover {
+        border-color: #ff4b4b !important;
+        color: #ff4b4b !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- 메인 화면 ---
 if st.session_state.page == 'main':
-    # 💡 [디자인 업그레이드] 메인 화면의 주요 버튼을 엄청나게 크게 만듭니다!
-    st.markdown("""
-        <style>
-        button[kind="primary"] {
-            height: 120px !important;
-            font-size: 28px !important;
-            font-weight: 900 !important;
-            border-radius: 20px !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
-            margin-bottom: 10px !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    st.title("💳 신용카드 사용대장")
+    st.markdown("<h1 style='font-size: 40px;'>💳 신용카드 사용대장</h1>", unsafe_allow_html=True)
     st.write("원하시는 작업을 선택해 주세요.")
     st.write("")
     
-    # 💡 좌우 분할을 없애고 위아래 100% 꽉 차는 거대한 버튼으로 변경
-    if st.button("🟩 카드 수령하기", use_container_width=True, type="primary"):
-        change_page('checkout')
-        st.rerun()
-        
-    if st.button("🟥 카드 반납하기", use_container_width=True, type="primary"):
-        change_page('return')
-        st.rerun()
+    # 좌우 배치를 위해 2개의 열 생성
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🟩 카드 수령하기", use_container_width=True, type="primary"):
+            change_page('checkout')
+            st.rerun()
+    with col2:
+        if st.button("🟥 카드 반납하기", use_container_width=True, type="primary"):
+            change_page('return')
+            st.rerun()
             
     st.divider()
-    # 관리자 메뉴는 눈에 덜 띄도록 일반(secondary) 버튼 크기로 유지합니다.
     if st.button("⚙️ 관리자 메뉴", use_container_width=True):
         change_page('admin')
         st.rerun()
@@ -100,8 +124,8 @@ elif st.session_state.page == 'checkout':
         change_page('main')
         st.rerun()
         
-    st.header("🟩 카드 수령 등록")
-    st.subheader("📝 수령 정보 입력")
+    st.markdown("<h2 style='font-size: 32px;'>🟩 카드 수령 등록</h2>", unsafe_allow_html=True)
+    st.markdown("<h3 style='font-size: 24px;'>📝 수령 정보 입력</h3>", unsafe_allow_html=True)
     
     user_name = st.selectbox(
         "사용자 이름 (검색하여 선택)", 
@@ -116,7 +140,8 @@ elif st.session_state.page == 'checkout':
         card_selection = st.selectbox("수령할 카드", available_cards)
         checkout_note = st.text_input("수령 메모 (선택)", placeholder="특이사항을 적어주세요")
         
-        if st.button("수령 완료", type="primary"):
+        # 💡 안쪽 화면의 완료 버튼은 너무 커지지 않도록 일반(secondary) 버튼으로 유지
+        if st.button("수령 완료", type="secondary", use_container_width=True):
             if not user_name: 
                 st.warning("⚠️ 사용자 이름을 검색하여 선택해 주세요.")
             else:
@@ -125,12 +150,12 @@ elif st.session_state.page == 'checkout':
                 record_sheet.append_row(new_row)
                 
                 st.cache_data.clear() 
-                st.success(f"✅ 수령 등록 완료! 메인 화면으로 돌아갑니다.")
+                st.success(f"✅ 수령 등록 완료")
                 change_page('main')
                 st.rerun()
 
     st.divider()
-    st.subheader("📌 현재 카드 사용 현황")
+    st.markdown("<h3 style='font-size: 24px;'>📌 현재 카드 사용 현황</h3>", unsafe_allow_html=True)
     if not checked_out_list:
         st.info("모든 카드가 반납되어 사무실에 있습니다.")
     else:
@@ -143,7 +168,7 @@ elif st.session_state.page == 'return':
         change_page('main')
         st.rerun()
         
-    st.header("🟥 카드 반납 등록")
+    st.markdown("<h2 style='font-size: 32px;'>🟥 카드 반납 등록</h2>", unsafe_allow_html=True)
     if not checked_out_list:
         st.info("현재 반납할 카드가 없습니다.")
     else:
@@ -153,7 +178,7 @@ elif st.session_state.page == 'return':
         
         return_note = st.text_input("반납 메모 (선택)", placeholder="특이사항을 적어주세요")
         
-        if st.button("반납 완료", type="primary"):
+        if st.button("반납 완료", type="secondary", use_container_width=True):
             current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
             row_num = selected_item["row_num"]
             
@@ -165,7 +190,7 @@ elif st.session_state.page == 'return':
                 record_sheet.update_cell(row_num, 5, f"{existing_note} [{return_note}]".strip())
                 
             st.cache_data.clear()
-            st.success("✅ 반납 완료! 메인 화면으로 돌아갑니다.")
+            st.success("✅ 반납 완료")
             change_page('main')
             st.rerun()
 
@@ -175,7 +200,7 @@ elif st.session_state.page == 'admin':
         change_page('main')
         st.rerun()
         
-    st.header("⚙️ 관리자 전용")
+    st.markdown("<h2 style='font-size: 32px;'>⚙️ 관리자 전용</h2>", unsafe_allow_html=True)
     password = st.text_input("비밀번호", type="password")
     
     if password == "지출줌1!":
