@@ -18,7 +18,6 @@ doc = init_connection()
 record_sheet = doc.worksheet("출납기록")
 card_sheet = doc.worksheet("카드목록")
 user_sheet = doc.worksheet("사용자목록")
-# 💡 불필요해진 '품의내용목록' 시트 로딩을 삭제하여 속도를 높였습니다.
 
 # ==========================================
 # 🚀 2. 데이터 임시 저장
@@ -46,10 +45,9 @@ if len(all_records) > 1:
 in_use_cards = [item["row_data"][3] for item in checked_out_list]
 available_cards = [c for c in card_list if c not in in_use_cards]
 
-# 💡 한국 시간(KST) 설정
 KST = datetime.timezone(datetime.timedelta(hours=9))
 
-# --- 페이지 이동(Session State) 초기화 ---
+# --- 페이지 이동 초기화 ---
 if 'page' not in st.session_state:
     st.session_state.page = 'main'
 
@@ -61,9 +59,9 @@ def change_page(page_name):
 # ==========================================
 st.set_page_config(page_title="카드 출납 관리", layout="centered")
 
-# --- 화면 A: 메인 화면 ---
+# --- 메인 화면 ---
 if st.session_state.page == 'main':
-    st.title("💳 법인카드 출납 시스템")
+    st.title("💳 법인카드 사용대장")
     st.write("원하시는 작업을 선택해 주세요.")
     st.write("")
     
@@ -82,7 +80,7 @@ if st.session_state.page == 'main':
         change_page('admin')
         st.rerun()
 
-# --- 화면 B: 카드 수령 화면 ---
+# --- 수령 화면 ---
 elif st.session_state.page == 'checkout':
     if st.button("🔙 뒤로 가기"):
         change_page('main')
@@ -105,16 +103,13 @@ elif st.session_state.page == 'checkout':
         st.error("현재 남은 카드가 없습니다!")
     else:
         card_selection = st.selectbox("수령할 카드", available_cards)
-        
-        # 💡 품의 내용 선택창 대신 '수령 메모' 텍스트 입력창 추가
         checkout_note = st.text_input("수령 메모 (선택)", placeholder="행선지 등 특이사항을 적어주세요")
         
         if st.button("수령 완료", type="primary"):
-            # 💡 미국 시간 대신 한국 시간(KST) 적용
             current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
             
-            # 장부의 5번째(E열)에 수령 메모가 들어갑니다.
-            new_row = [current_time, "", user_name, card_selection, checkout_note, "수령", ""]
+            # 💡 G열(7번째 칸)을 삭제했으므로 딱 6개의 데이터만 장부로 보냅니다!
+            new_row = [current_time, "", user_name, card_selection, checkout_note, "수령"]
             record_sheet.append_row(new_row)
             
             st.cache_data.clear() 
@@ -122,7 +117,7 @@ elif st.session_state.page == 'checkout':
             change_page('main')
             st.rerun()
 
-# --- 화면 C: 카드 반납 화면 ---
+# --- 반납 화면 ---
 elif st.session_state.page == 'return':
     if st.button("🔙 뒤로 가기"):
         change_page('main')
@@ -136,17 +131,14 @@ elif st.session_state.page == 'return':
         selected_display = st.selectbox("반납할 카드를 고르세요", options_display)
         selected_item = next(item for item in checked_out_list if item["display"] == selected_display)
         
-        # 💡 사용 금액 입력을 삭제하고 반납 메모만 유지
         return_note = st.text_input("반납 메모 (선택)", placeholder="영수증 제출 등 특이사항")
         
         if st.button("반납 완료", type="primary"):
-            # 💡 한국 시간(KST) 적용
             current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
             row_num = selected_item["row_num"]
             
             record_sheet.update_cell(row_num, 2, current_time) 
             record_sheet.update_cell(row_num, 6, "반납")      
-            # 금액 입력칸이 없어졌으므로 7열(금액) 업데이트 부분은 삭제
             
             if return_note:
                 existing_note = selected_item["row_data"][4]
@@ -157,7 +149,7 @@ elif st.session_state.page == 'return':
             change_page('main')
             st.rerun()
 
-# --- 화면 D: 관리자 화면 ---
+# --- 관리자 화면 ---
 elif st.session_state.page == 'admin':
     if st.button("🔙 뒤로 가기"):
         change_page('main')
@@ -166,7 +158,7 @@ elif st.session_state.page == 'admin':
     st.header("⚙️ 관리자 전용")
     password = st.text_input("비밀번호", type="password")
     
-    if password == "1234":
+    if password == "wlcnfwna1!":
         st.success("인증 성공")
         st.write("전체 출납 내역 조회")
         
