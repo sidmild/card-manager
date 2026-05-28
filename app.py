@@ -2,19 +2,14 @@ import streamlit as st
 import datetime
 import gspread
 import pandas as pd
-# json 임포트도 이제 필요 없습니다!
 
 # ==========================================
-# 1. 연결 정보 세팅
+# 🚀 1. 연결 정보 세팅
 # ==========================================
 def init_connection():
     key_dict = dict(st.secrets["google_credentials"])
-    
-    # 누락되었던 줄바꿈 기호 변환 코드 추가
     key_dict["private_key"] = key_dict["private_key"].replace("\\n", "\n")
-    
     client = gspread.service_account_from_dict(key_dict)
-    
     sheet_id = "13OWFBm3CA37LHKt3eMPLUWZfnUrrYUEAmH1GsNANVeo"
     return client.open_by_key(sheet_id)
 
@@ -23,29 +18,19 @@ doc = init_connection()
 record_sheet = doc.worksheet("출납기록")
 card_sheet = doc.worksheet("카드목록")
 user_sheet = doc.worksheet("사용자목록")
-purpose_sheet = doc.worksheet("품의내용목록")
+# 💡 불필요해진 '품의내용목록' 시트 로딩을 삭제하여 속도를 높였습니다.
 
 # ==========================================
-# 🚀 2. 데이터 임시 저장 (속도 향상 핵심 기술)
+# 🚀 2. 데이터 임시 저장
 # ==========================================
 @st.cache_data(ttl=30)
 def load_data():
     c_list = [c for c in card_sheet.col_values(2)[1:] if c]
     u_list = [u for u in user_sheet.col_values(1)[1:] if u]
-    
-    p_records = purpose_sheet.get_all_values()
-    p_list = []
-    if len(p_records) > 1:
-        for row in p_records[1:]:
-            if row[0]:
-                drafter = row[1] if len(row) > 1 and row[1] else "지정안됨"
-                p_list.append(f"{row[0]} (품의자: {drafter})")
-                
     r_records = record_sheet.get_all_values()
-    return c_list, u_list, p_list, r_records
+    return c_list, u_list, r_records
 
-# (이하 화면 구성 코드는 선생님이 가지고 계신 코드 그대로 두시면 됩니다!)
-card_list, user_list, purpose_list, all_records = load_data()
+card_list, user_list, all_records = load_data()
 
 # --- 데이터 필터링 ---
 checked_out_list = []
@@ -60,6 +45,9 @@ if len(all_records) > 1:
 
 in_use_cards = [item["row_data"][3] for item in checked_out_list]
 available_cards = [c for c in card_list if c not in in_use_cards]
+
+# 💡 한국 시간(KST) 설정
+KST = datetime.timezone(datetime.timedelta(hours=9))
 
 # --- 페이지 이동(Session State) 초기화 ---
 if 'page' not in st.session_state:
@@ -117,26 +105,22 @@ elif st.session_state.page == 'checkout':
         st.error("현재 남은 카드가 없습니다!")
     else:
         card_selection = st.selectbox("수령할 카드", available_cards)
-        purpose_options = purpose_list + ["기타 (직접 입력)"]
-        selected_purpose = st.selectbox("품의 내용 / 품의자", purpose_options)
         
-        if selected_purpose == "기타 (직접 입력)":
-            purpose_content = st.text_input("직접 입력해 주세요 (예: 물품구입 / 홍길동)")
-        else:
-            purpose_content = selected_purpose
-            
+        # 💡 품의 내용 선택창 대신 '수령 메모' 텍스트 입력창 추가
+        checkout_note = st.text_input("수령 메모 (선택)", placeholder="행선지 등 특이사항을 적어주세요")
+        
         if st.button("수령 완료", type="primary"):
-            if purpose_content:
-                current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                new_row = [current_time, "", user_name, card_selection, purpose_content, "수령", "0"]
-                record_sheet.append_row(new_row)
-                
-                st.cache_data.clear() 
-                st.success(f"✅ 수령 등록 완료! 메인 화면으로 돌아갑니다.")
-                change_page('main')
-                st.rerun()
-            else:
-                st.warning("⚠️ 내용을 입력해 주세요.")
+            # 💡 미국 시간 대신 한국 시간(KST) 적용
+            current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
+            
+            # 장부의 5번째(E열)에 수령 메모가 들어갑니다.
+            new_row = [current_time, "", user_name, card_selection, checkout_note, "수령", ""]
+            record_sheet.append_row(new_row)
+            
+            st.cache_data.clear() 
+            st.success(f"✅ 수령 등록 완료! 메인 화면으로 돌아갑니다.")
+            change_page('main')
+            st.rerun()
 
 # --- 화면 C: 카드 반납 화면 ---
 elif st.session_state.page == 'return':
@@ -152,20 +136,21 @@ elif st.session_state.page == 'return':
         selected_display = st.selectbox("반납할 카드를 고르세요", options_display)
         selected_item = next(item for item in checked_out_list if item["display"] == selected_display)
         
-        return_amount = st.number_input("사용 금액 (원)", min_value=0, step=1000)
+        # 💡 사용 금액 입력을 삭제하고 반납 메모만 유지
         return_note = st.text_input("반납 메모 (선택)", placeholder="영수증 제출 등 특이사항")
         
         if st.button("반납 완료", type="primary"):
-            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # 💡 한국 시간(KST) 적용
+            current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
             row_num = selected_item["row_num"]
             
             record_sheet.update_cell(row_num, 2, current_time) 
             record_sheet.update_cell(row_num, 6, "반납")      
-            record_sheet.update_cell(row_num, 7, return_amount) 
+            # 금액 입력칸이 없어졌으므로 7열(금액) 업데이트 부분은 삭제
             
             if return_note:
-                existing_purpose = selected_item["row_data"][4]
-                record_sheet.update_cell(row_num, 5, f"{existing_purpose} [{return_note}]")
+                existing_note = selected_item["row_data"][4]
+                record_sheet.update_cell(row_num, 5, f"{existing_note} [{return_note}]".strip())
                 
             st.cache_data.clear()
             st.success("✅ 반납 완료! 메인 화면으로 돌아갑니다.")
@@ -183,7 +168,7 @@ elif st.session_state.page == 'admin':
     
     if password == "1234":
         st.success("인증 성공")
-        st.write("전체 출납 내역 조회 (금액 포함)")
+        st.write("전체 출납 내역 조회")
         
         if len(all_records) > 1:
             df = pd.DataFrame(all_records[1:], columns=all_records[0])
