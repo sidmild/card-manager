@@ -61,7 +61,7 @@ st.set_page_config(page_title="카드 출납 관리", layout="centered")
 
 # --- 메인 화면 ---
 if st.session_state.page == 'main':
-    st.title("💳 법인카드 출납 시스템")
+    st.title("💳 신용카드 사용대장")
     st.write("원하시는 작업을 선택해 주세요.")
     st.write("")
     
@@ -103,7 +103,7 @@ elif st.session_state.page == 'checkout':
         st.error("현재 남은 카드가 없습니다!")
     else:
         card_selection = st.selectbox("수령할 카드", available_cards)
-        checkout_note = st.text_input("수령 메모 (선택)", placeholder="행선지 등 특이사항을 적어주세요")
+        checkout_note = st.text_input("수령 메모 (선택)", placeholder="특이사항을 적어주세요")
         
         if st.button("수령 완료", type="primary"):
             if not user_name: # 사용자를 선택하지 않고 누를 경우 방지
@@ -142,7 +142,7 @@ elif st.session_state.page == 'return':
         selected_display = st.selectbox("반납할 카드를 고르세요", options_display)
         selected_item = next(item for item in checked_out_list if item["display"] == selected_display)
         
-        return_note = st.text_input("반납 메모 (선택)", placeholder="영수증 제출 등 특이사항")
+        return_note = st.text_input("반납 메모 (선택)", placeholder="특이사항을 적어주세요")
         
         if st.button("반납 완료", type="primary"):
             current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
