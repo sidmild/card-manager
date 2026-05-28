@@ -61,7 +61,7 @@ st.set_page_config(page_title="카드 출납 관리", layout="centered")
 
 # --- 메인 화면 ---
 if st.session_state.page == 'main':
-    st.title("💳 법인카드 사용대장")
+    st.title("💳 법인카드 출납 시스템")
     st.write("원하시는 작업을 선택해 주세요.")
     st.write("")
     
@@ -87,35 +87,46 @@ elif st.session_state.page == 'checkout':
         st.rerun()
         
     st.header("🟩 카드 수령 등록")
+    
+    # 💡 1. 수령 정보 입력을 화면 상단으로 배치
+    st.subheader("📝 수령 정보 입력")
+    
+    # 💡 2. 이름 검색 기능 강화 (기본값을 빈칸으로 만들고 검색 유도)
+    user_name = st.selectbox(
+        "사용자 이름 (검색하여 선택)", 
+        options=user_list, 
+        index=None,  # 아무도 선택되지 않은 빈칸 상태로 시작
+        placeholder="🔍 이름을 입력하면 자동으로 검색됩니다"
+    )
+    
+    if not available_cards:
+        st.error("현재 남은 카드가 없습니다!")
+    else:
+        card_selection = st.selectbox("수령할 카드", available_cards)
+        checkout_note = st.text_input("수령 메모 (선택)", placeholder="행선지 등 특이사항을 적어주세요")
+        
+        if st.button("수령 완료", type="primary"):
+            if not user_name: # 사용자를 선택하지 않고 누를 경우 방지
+                st.warning("⚠️ 사용자 이름을 검색하여 선택해 주세요.")
+            else:
+                current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
+                new_row = [current_time, "", user_name, card_selection, checkout_note, "수령"]
+                record_sheet.append_row(new_row)
+                
+                st.cache_data.clear() 
+                st.success(f"✅ 수령 등록 완료! 메인 화면으로 돌아갑니다.")
+                change_page('main')
+                st.rerun()
+
+    st.divider()
+
+    # 💡 3. 현재 카드 사용 현황을 화면 하단으로 이동
     st.subheader("📌 현재 카드 사용 현황")
     if not checked_out_list:
         st.info("모든 카드가 반납되어 사무실에 있습니다.")
     else:
         for item in checked_out_list:
             st.warning(f"사용중: {item['display']}")
-            
-    st.divider()
-    
-    st.subheader("📝 수령 정보 입력")
-    user_name = st.selectbox("사용자 이름 (수령자)", user_list)
-    
-    if not available_cards:
-        st.error("현재 남은 카드가 없습니다!")
-    else:
-        card_selection = st.selectbox("수령할 카드", available_cards)
-        checkout_note = st.text_input("수령 메모 (선택)", placeholder="특이사항을 적어주세요")
-        
-        if st.button("수령 완료", type="primary"):
-            current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
-            
-            # 💡 G열(7번째 칸)을 삭제했으므로 딱 6개의 데이터만 장부로 보냅니다!
-            new_row = [current_time, "", user_name, card_selection, checkout_note, "수령"]
-            record_sheet.append_row(new_row)
-            
-            st.cache_data.clear() 
-            st.success(f"✅ 수령 등록 완료! 메인 화면으로 돌아갑니다.")
-            change_page('main')
-            st.rerun()
 
 # --- 반납 화면 ---
 elif st.session_state.page == 'return':
@@ -131,7 +142,7 @@ elif st.session_state.page == 'return':
         selected_display = st.selectbox("반납할 카드를 고르세요", options_display)
         selected_item = next(item for item in checked_out_list if item["display"] == selected_display)
         
-        return_note = st.text_input("반납 메모 (선택)", placeholder="OOO에게 전달 등 특이사항을 적어주세요")
+        return_note = st.text_input("반납 메모 (선택)", placeholder="영수증 제출 등 특이사항")
         
         if st.button("반납 완료", type="primary"):
             current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
@@ -158,7 +169,7 @@ elif st.session_state.page == 'admin':
     st.header("⚙️ 관리자 전용")
     password = st.text_input("비밀번호", type="password")
     
-    if password == "wlcnfwna1!":
+    if password == "1234":
         st.success("인증 성공")
         st.write("전체 출납 내역 조회")
         
