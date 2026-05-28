@@ -103,7 +103,7 @@ elif st.session_state.page == 'checkout':
         st.error("현재 남은 카드가 없습니다!")
     else:
         card_selection = st.selectbox("수령할 카드", available_cards)
-        checkout_note = st.text_input("수령 메모 (선택)", placeholder="행선지 등 특이사항을 적어주세요")
+        checkout_note = st.text_input("수령 메모 (선택)", placeholder="특이사항을 적어주세요")
         
         if st.button("수령 완료", type="primary"):
             current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
@@ -131,7 +131,7 @@ elif st.session_state.page == 'return':
         selected_display = st.selectbox("반납할 카드를 고르세요", options_display)
         selected_item = next(item for item in checked_out_list if item["display"] == selected_display)
         
-        return_note = st.text_input("반납 메모 (선택)", placeholder="영수증 제출 등 특이사항")
+        return_note = st.text_input("반납 메모 (선택)", placeholder="OOO에게 전달 등 특이사항을 적어주세요")
         
         if st.button("반납 완료", type="primary"):
             current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
