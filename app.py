@@ -151,17 +151,21 @@ elif st.session_state.page == 'checkout':
     st.markdown("<h2 style='font-size: 32px;'>🟩 카드 수령 등록</h2>", unsafe_allow_html=True)
     st.markdown("<h3 style='font-size: 24px;'>📝 수령 정보 입력</h3>", unsafe_allow_html=True)
     
-    user_name = st.selectbox(
-        "사용자 이름 (검색하여 선택)", 
-        options=user_list, 
-        index=None, 
-        placeholder="🔍 이름을 입력하면 자동으로 검색됩니다"
-    )
-    
     if not available_cards:
         st.error("현재 남은 카드가 없습니다!")
     else:
+        # 💡 1. 수령할 카드를 가장 먼저 선택하도록 위로 배치
         card_selection = st.radio("수령할 카드", available_cards)
+        
+        # 💡 2. 사용자 이름을 카드 선택 밑으로 이동
+        user_name = st.selectbox(
+            "사용자 이름 (검색하여 선택)", 
+            options=user_list, 
+            index=None, 
+            placeholder="🔍 이름을 입력하면 자동으로 검색됩니다"
+        )
+        
+        # 💡 3. 메모 작성
         checkout_note = st.text_input("수령 메모 (선택)", placeholder="특이사항을 적어주세요")
         
         if st.button("수령 완료", type="primary", use_container_width=True):
@@ -191,7 +195,7 @@ elif st.session_state.page == 'return':
     st.markdown("""
         <style>
         button[kind="primary"] {
-            background-color: #ff4b4b !important; /* 선명한 빨간색 */
+            background-color: #ff4b4b !important; 
             color: white !important;
             border: none !important;
             font-size: 20px !important;
@@ -200,7 +204,7 @@ elif st.session_state.page == 'return':
             transition: all 0.2s ease-in-out;
         }
         button[kind="primary"]:hover {
-            background-color: #ff3333 !important; /* 터치 시 더 진해짐 */
+            background-color: #ff3333 !important; 
             color: white !important;
         }
         </style>
