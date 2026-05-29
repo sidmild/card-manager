@@ -81,7 +81,7 @@ st.markdown("""
         gap: 15px;
     }
     
-    /* 💡 메인 화면의 큰 버튼 (무조건 흰색 고정!) */
+    /* 메인 화면의 큰 버튼 (무조건 흰색 고정!) */
     div[data-testid="column"] button[kind="primary"],
     div[data-testid="stColumn"] button[kind="primary"] {
         background-color: #ffffff !important; 
@@ -125,7 +125,7 @@ if st.session_state.page == 'main':
 
 # --- 수령 화면 ---
 elif st.session_state.page == 'checkout':
-    # 💡 수령 화면 전용: 완료 버튼 초록색 스타일 주입
+    # 수령 화면 전용: 완료 버튼 초록색 스타일
     st.markdown("""
         <style>
         button[kind="primary"] {
@@ -154,19 +154,25 @@ elif st.session_state.page == 'checkout':
     if not available_cards:
         st.error("현재 남은 카드가 없습니다!")
     else:
-        # 💡 1. 수령할 카드를 가장 먼저 선택하도록 위로 배치
-        card_selection = st.radio("수령할 카드", available_cards)
+        # 1. 수령할 카드
+        card_selection = st.radio("1. 수령할 카드", available_cards)
         
-        # 💡 2. 사용자 이름을 카드 선택 밑으로 이동
+        st.write("") # 💡 한 칸 띄우기
+        
+        # 2. 사용자 이름
         user_name = st.selectbox(
-            "사용자 이름 (검색하여 선택)", 
+            "2. 사용자 이름 (검색하여 선택)", 
             options=user_list, 
             index=None, 
             placeholder="🔍 이름을 입력하면 자동으로 검색됩니다"
         )
         
-        # 💡 3. 메모 작성
-        checkout_note = st.text_input("수령 메모 (선택)", placeholder="특이사항을 적어주세요")
+        st.write("") # 💡 한 칸 띄우기
+        
+        # 3. 메모 작성
+        checkout_note = st.text_input("3. 수령 메모 (선택)", placeholder="특이사항을 적어주세요")
+        
+        st.write("") # 💡 버튼 위에도 한 칸 띄워서 여유 공간 확보
         
         if st.button("수령 완료", type="primary", use_container_width=True):
             if not user_name: 
@@ -191,7 +197,7 @@ elif st.session_state.page == 'checkout':
 
 # --- 반납 화면 ---
 elif st.session_state.page == 'return':
-    # 💡 반납 화면 전용: 완료 버튼 빨간색 스타일 주입
+    # 반납 화면 전용: 완료 버튼 빨간색 스타일
     st.markdown("""
         <style>
         button[kind="primary"] {
@@ -221,9 +227,14 @@ elif st.session_state.page == 'return':
         options_display = [item["display"] for item in checked_out_list]
         
         selected_display = st.radio("반납할 카드를 고르세요", options_display)
+        
+        st.write("") # 💡 한 칸 띄우기
+        
         selected_item = next(item for item in checked_out_list if item["display"] == selected_display)
         
         return_note = st.text_input("반납 메모 (선택)", placeholder="특이사항을 적어주세요")
+        
+        st.write("") # 💡 버튼 위에도 한 칸 띄워서 여유 공간 확보
         
         if st.button("반납 완료", type="primary", use_container_width=True):
             current_time = datetime.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
